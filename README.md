@@ -1,148 +1,205 @@
 # TaskHandoff
 
-**DeepSeek-friendly long-task project memory & cross-session handoff Skill** for coding agents.
+**DeepSeek-friendly long-task project memory & cross-session handoff** for coding agents.
 
-> 解决真实痛点：长任务做到一半换会话 / 上下文被压缩 / 换模型后，Agent 忘了目标、决策和下一步。
+> 长任务做到一半换会话 / 上下文被压掉 / 换模型 —— Agent 忘了目标、决策和下一步。  
+> TaskHandoff 把可恢复状态写进仓库 `.handoff/`，任何能读文件的 Harness 都能接着干。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](scripts/handoff_cli.py)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![GitHub](https://img.shields.io/badge/github-sutongwuyanzu%2FTaskHandoff-black)](https://github.com/sutongwuyanzu/TaskHandoff)
 
-**Repo:** https://github.com/sutongwuyanzu/TaskHandoff  
-**Skill name:** `task-handoff`（安装目录名 / slash 触发名）
+| | |
+|--|--|
+| **Repo** | https://github.com/sutongwuyanzu/TaskHandoff |
+| **Skill name** | `task-handoff` |
+| **CLI** | `handoff`（`pip install -e .` 后） |
+| **DSH** | Skill 形态，发布日可接入（见 [references/deepseek-notes.md](references/deepseek-notes.md)） |
 
-## 30 秒理解
+---
+
+## 30 秒心智模型
 
 ```text
-会话 A 干到一半  →  handoff save  →  .handoff/ 写入仓库
-新开会话 / 换模型 →  handoff recall →  Agent 接着 Next actions 干
+会话 A 干到一半  →  handoff save [--auto]  →  写入 .handoff/
+新开会话 / 换模型 →  handoff recall --brief →  执行 Next #1
 ```
 
-## Why
+| 文件 | 作用 |
+|------|------|
+| `.handoff/MEMORY.md` | 长期记忆（偏好、架构、坑） |
+| `.handoff/handoffs/LATEST.md` | 上一会话状态 + **下一步 3 条** |
+| `.handoff/todos.json` / `decisions.jsonl` | 结构化待办与决策日志 |
 
-Coding agents are strong in a single chat, weak across **session boundaries**.
+---
 
-TaskHandoff keeps recovery state **inside the repo** (`.handoff/`), so any harness that can read files — Claude Code, Codex, Cursor, and **DeepSeek Harness (DSH)** — can resume the same long task.
+## 安装（推荐最低完整版）
 
-| Layer | Purpose |
-|-------|---------|
-| `MEMORY.md` | Durable project facts (prefs, architecture, pitfalls) |
-| `handoffs/LATEST.md` | Last session status + exact next 3 actions |
-| `todos.json` / `decisions.jsonl` | Structured machine-readable state |
-| `scripts/handoff_cli.py` | `init` / `save` / `recall` / `status` / `memory` |
-
-## Install as a Skill
-
-### Option A — copy into agent skills dir
+需要 **Python 3.9+**，**零第三方运行时依赖**。
 
 ```bash
 git clone https://github.com/sutongwuyanzu/TaskHandoff.git
-# Claude Code example
-cp -r TaskHandoff ~/.claude/skills/task-handoff
+cd TaskHandoff
+pip install -e .
 
-# Or project-local
-cp -r TaskHandoff /path/to/your-app/.claude/skills/task-handoff
+# 验证
+handoff --version
+# 或
+python -m taskhandoff --version
 ```
 
-### Option B — use CLI only (any agent with shell)
+不装包也可以：
 
 ```bash
-git clone https://github.com/sutongwuyanzu/TaskHandoff.git
-cd /path/to/your-project
-python /path/to/TaskHandoff/scripts/handoff_cli.py init --root .
-```
-
-Requires **Python 3.9+** (stdlib only, no pip deps).
-
-## Quick start
-
-```bash
-# 1) init once per repo
 python scripts/handoff_cli.py init --root /path/to/project
+```
 
-# 2) end of session — save handoff
-python scripts/handoff_cli.py save --root /path/to/project \
+### 装成 Agent Skill
+
+```bash
+# Claude Code 示例
+cp -r TaskHandoff ~/.claude/skills/task-handoff
+# 之后对 Agent 说：交接 / 接着做 / handoff
+```
+
+`SKILL.md` 是给 Agent 的剧本；CLI 是可脚本化执行层。
+
+---
+
+## 快速演示：init → save → recall
+
+在任意项目里：
+
+```bash
+cd /path/to/your-app
+
+# 1) 初始化（每个仓库一次）
+handoff init --root .
+
+# 2) 会话结束前交接（推荐 --auto：自动带上 git 变更/最近 commit）
+handoff save --root . --auto \
   --goal "Ship JWT auth" \
   --done "Middleware scaffolded" \
   --decision "Refresh token in httpOnly cookie" \
-  --file "src/auth/middleware.ts" \
   --next "Finish refresh endpoint" \
   --next "Add 401/403 tests" \
   --next "Document env vars" \
-  --memory-delta "- Auth: access token memory-only; refresh httpOnly cookie"
+  --memory-delta "Auth: access token memory-only; refresh httpOnly cookie"
 
-# 3) new session — recall compact pack
-python scripts/handoff_cli.py recall --root /path/to/project --budget 2500
+# 3) 新会话只读 brief（短、稳、给 Agent 直接开干）
+handoff recall --root . --brief
 
-# 4) status
-python scripts/handoff_cli.py status --root /path/to/project
+# 4) 需要全文时
+handoff recall --root . --budget 2500
+
+# 5) 健康检查（含密钥扫描）
+handoff doctor --root .
+handoff status --root .
 ```
 
-Natural language (via `SKILL.md` playbook):
+### 自然语言（Agent 读 `SKILL.md`）
 
-| You say | Agent should |
-|---------|----------------|
-| 交接 / handoff | `save` |
-| 接着做 / continue / resume | `recall` then act |
-| 记住我们用 pnpm | append `MEMORY.md` |
-| handoff status | `status` |
+| 你说 | Agent 应做 |
+|------|------------|
+| 交接 / handoff | `handoff save`（能加 `--auto` 就加） |
+| 接着做 / continue / resume | `handoff recall --brief` → 执行 Next #1 |
+| 记住我们用 pnpm | `handoff memory --append "..."` |
+| handoff 状态 | `handoff status` / `doctor` |
 
-## Layout after init
+### 示例交接包
+
+完整样例见 [examples/filled-LATEST.md](examples/filled-LATEST.md)。
+
+`recall --brief` 输出形态：
 
 ```text
-your-project/
-  .handoff/
-    config.json
-    MEMORY.md
-    todos.json
-    decisions.jsonl
-    handoffs/
-      LATEST.md      # load this first on resume
-      LATEST.json
-      20260805T....md
+# Resume brief (TaskHandoff)
+- project: `your-app`
+- goal: Ship JWT auth
+- next:
+  1. Finish refresh endpoint
+  2. Add 401/403 tests
+  3. Document env vars
+- instruction: Execute next action #1 now. ...
 ```
 
-Safe to commit (do **not** put secrets there). See [references/schema.md](references/schema.md).
+---
 
-## DeepSeek Harness (DSH)
+## 安全
 
-Designed for **day-0 DSH support**:
+- **默认拒绝**把疑似密钥写进 handoff（GitHub PAT、JWT、私钥块、常见 `api_key=` 等）
+- 误报时才用：`handoff save ... --allow-secrets`（不推荐）
+- `handoff doctor` 会扫描已有 `LATEST.md`
 
-- Universal skill format (`SKILL.md`)
-- Portable `.handoff/` contract (markdown + JSON, no DB)
-- Token budgets tuned for long-context coding models
-- Integration plan: [references/deepseek-notes.md](references/deepseek-notes.md)
+---
 
-We will adapt triggers/hooks as soon as DSH public skill APIs ship.
-
-## Repo structure
+## 目录结构
 
 ```text
 TaskHandoff/
-  SKILL.md                 # agent playbook (required for skill installs)
-  scripts/handoff_cli.py   # CLI
-  templates/               # MEMORY / handoff / config templates
-  references/              # schema + DSH notes
-  examples/                # sample multi-day flow + filled handoff
+  SKILL.md                 # Agent skill 剧本
+  taskhandoff/             # 可安装 Python 包（CLI）
+  scripts/handoff_cli.py   # 兼容入口
+  templates/               # MEMORY / handoff 模板
+  references/              # schema + DSH 接入说明
+  examples/                # 示例流程与 filled handoff
+  tests/                   # pytest 契约测试
   APPLY.md                 # DSH 内测报名文案
+  pyproject.toml
 ```
 
-## Design principles
+项目内生成：
 
-1. **Portable** — plain files in the project
-2. **Token-thrifty** — fixed sections, bullets, `recall --budget`
-3. **Harness-agnostic** — works before DSH; plugs into DSH on day one
-4. **Agent-operable** — CLI + templates; agent can also edit files directly
+```text
+your-app/.handoff/
+  config.json
+  MEMORY.md
+  todos.json
+  decisions.jsonl
+  handoffs/LATEST.md
+  handoffs/LATEST.json
+```
+
+契约说明：[references/schema.md](references/schema.md)
+
+---
+
+## DeepSeek Harness (DSH)
+
+- 类型：**Skill + CLI**（预留 MCP 同契约）
+- 无私有二进制格式：纯 Markdown + JSON
+- Token 预算：`recall --budget` / `--brief`
+- 发布日接入计划：[references/deepseek-notes.md](references/deepseek-notes.md)
+
+报名文案：[APPLY.md](APPLY.md)
+
+---
+
+## 开发与测试
+
+```bash
+pip install -e ".[dev]"
+pytest -q
+```
+
+---
+
+## 设计原则
+
+1. **Portable** — 状态在仓库里，不绑云  
+2. **Token-thrifty** — 固定章节 + brief  
+3. **Harness-agnostic** — Claude Code / Codex / 未来 DSH  
+4. **Safe by default** — 密钥扫描  
 
 ## Roadmap
 
-- [ ] Optional MCP server wrapping the same contract
-- [ ] VS Code / JetBrains “Resume from handoff” button
-- [ ] Auto-save hook samples for multiple harnesses
-- [ ] Soft merge for concurrent handoffs
-
-## Apply / contribute
-
-Issues and PRs welcome. If you are integrating DSH, open an issue tagged `dsh`.
+- [x] 可安装 CLI（`handoff`）
+- [x] `save --auto`（git + 上次 handoff）
+- [x] `recall --brief` 固定复述
+- [x] 密钥拒绝写入 + `doctor`
+- [x] pytest 契约测试
+- [ ] 可选 MCP server（同一 `.handoff/` 契约）
+- [ ] 会话结束 hook 样例（多 harness）
 
 ## License
 

@@ -2,7 +2,7 @@
 
 仓库：https://github.com/sutongwuyanzu/TaskHandoff  
 
-把下面内容发到 [@tianyi](https://x.com/tianyi/status/2084693319188439211) 原帖评论，并 **私信邮箱**。
+发到 [@tianyi 原帖](https://x.com/tianyi/status/2084693319188439211) 评论，并 **私信邮箱**。
 
 ---
 
@@ -11,15 +11,17 @@
 ```text
 GitHub ID: sutongwuyanzu
 项目: https://github.com/sutongwuyanzu/TaskHandoff
-类型: Skill（+ CLI；预留 DSH / MCP 适配）
+类型: Skill（+ 可安装 CLI；预留 DSH / MCP 适配）
 
-一句话: DeepSeek 友好的「长任务交接 / 项目记忆 / 跨会话 handoff」Skill。
-把目标、决策、待办、下一步写进仓库 .handoff/，换会话或换 harness 也能接着干。
+一句话: DeepSeek 友好的「长任务交接 / 项目记忆 / 跨会话 handoff」。
+状态写入仓库 .handoff/，换会话、换模型也能 recall --brief 接着干。
 
 能力:
-- init / save / recall / status / memory CLI（纯 Python stdlib）
-- 可提交的 MEMORY.md + LATEST.md 紧凑交接包（token budget）
-- 兼容 Claude Code / Codex 等 SKILL.md 生态，DSH 发布当天可接入
+- handoff init/save/recall/status/doctor/memory（pip install -e . → 全局 handoff）
+- save --auto：git 变更 + 上次 handoff 自动补全
+- recall --brief：固定短复述，token 友好
+- 默认拒绝密钥写入；pytest 契约测试
+- 兼容 Claude Code / Codex 等 SKILL.md；DSH 发布当天可接入
 
 承诺: DSH 发布第一时间做 skill 适配与兼容验证
 邮箱已私信，谢谢！
@@ -41,7 +43,6 @@ GitHub: sutongwuyanzu
 ## 检查清单
 
 - [x] 公开仓库 https://github.com/sutongwuyanzu/TaskHandoff
-- [ ] 代码已 push（README / SKILL / CLI 可见）
-- [ ] 本地跑通 `init → save → recall → status`
-- [ ] 可选：录 15 秒终端 GIF 贴 README
+- [x] 可安装 CLI + `--auto` / `--brief` / 密钥扫描 / 测试
 - [ ] 评论报名 + 私信邮箱
+- [ ] 可选：终端 GIF 贴 README

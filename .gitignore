@@ -11,3 +11,10 @@ venv/
 .handoff-demo/
 _smoke_project/
 /tmp/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/

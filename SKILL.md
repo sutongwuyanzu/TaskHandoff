@@ -39,17 +39,23 @@ All state lives in the **project root** under `.handoff/` (git-friendly, portabl
 
 Never store secrets (API keys, tokens, passwords) in handoff files.
 
+## CLI entrypoints (prefer in order)
+
+```bash
+handoff <cmd> ...                 # after: pip install -e .
+python -m taskhandoff <cmd> ...
+python scripts/handoff_cli.py <cmd> ...
+```
+
 ## Core workflow
 
 ### 1) Init (once per repo)
 
 ```bash
-python scripts/handoff_cli.py init --root <project-root>
+handoff init --root <project-root>
 ```
 
-If scripts path is relative to this skill, resolve it from the skill install location.
-
-After init, briefly confirm `.handoff/` exists and show `status`.
+After init, briefly confirm `.handoff/` exists and show `handoff status --root ...`.
 
 ### 2) Save / Handoff (end of session or mid-task checkpoint)
 
@@ -61,39 +67,41 @@ When the user asks to handoff, or before context overflow, or after major milest
    - Key decisions + why
    - Open questions
    - Relevant files / commands
-   - Git branch + dirty summary if available
    - Exact **next 3 actions**
-2. Run:
+2. Prefer **auto** so git dirty files + recent commits are attached:
 
 ```bash
-python scripts/handoff_cli.py save --root <project-root> \
+handoff save --root <project-root> --auto \
   --goal "..." \
-  --summary "..." \
+  --done "..." \
   --next "action1" --next "action2" --next "action3"
 ```
 
-Or write/update files directly using the templates in `templates/` if the CLI is unavailable.
+Never put API keys / tokens into handoff text. CLI refuses common secret patterns unless `--allow-secrets`.
 
-3. Tell the user the path to `.handoff/handoffs/LATEST.md` and that the next session can `/task-handoff` or say「接着做」.
+3. Tell the user the path to `.handoff/handoffs/LATEST.md` and that the next session can say「接着做」.
 
 ### 3) Recall (start of session)
 
 On session start, if `.handoff/` exists:
 
 ```bash
-python scripts/handoff_cli.py recall --root <project-root> --budget 2500
+handoff recall --root <project-root> --brief
+# if more detail needed:
+handoff recall --root <project-root> --budget 2500
 ```
 
 Then:
 
-1. Load `MEMORY.md` + `handoffs/LATEST.md` (and todos if present)
-2. Restate goal, current status, and next 3 actions in ≤10 bullets
-3. Ask only if a critical fact is missing — otherwise continue work immediately
+1. Follow the **Resume brief** (goal + next 1..3)
+2. Execute **next action #1** immediately when clear
+3. Ask only if a critical fact is missing
 
-### 4) Status
+### 4) Status / doctor
 
 ```bash
-python scripts/handoff_cli.py status --root <project-root>
+handoff status --root <project-root>
+handoff doctor --root <project-root>
 ```
 
 ## Writing rules (DeepSeek-friendly)
