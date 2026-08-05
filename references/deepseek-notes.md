@@ -18,11 +18,13 @@ When DSH public APIs land:
 
 1. Register skill entry pointing at `SKILL.md`
 2. Map slash / skill triggers: `handoff`, `交接`, `接着做`
-3. Prefer running `scripts/handoff_cli.py` via shell tool; fallback to direct file R/W
+3. Prefer **MCP tools** (`handoff_recall` / `handoff_save`) when DSH supports MCP; else CLI / file R/W
 4. On session start hook (if available): auto-`recall` when `.handoff/handoffs/LATEST.md` exists
 5. On session end / compact hook: prompt or auto-`save`
 
 No proprietary binary format — only markdown + JSON already defined in `schema.md`.
+
+MCP details: [mcp.md](mcp.md).
 
 ## Token strategy for DeepSeek models
 

@@ -146,7 +146,8 @@ Do **not** dump transient todos into MEMORY.md (those go in `todos.json` / hando
 ## Integration notes
 
 - **Claude Code / Codex / Cursor-style skills**: this `SKILL.md` is the playbook; run scripts from skill dir or copy skill into the agent's skills path.
-- **DeepSeek Harness (DSH)**: treat this as a first-party skill; on DSH release, map the same `.handoff/` contract — no proprietary format.
+- **MCP**: if the host has TaskHandoff MCP configured, prefer tools `handoff_recall` / `handoff_save` / `handoff_init` over shell. Same `.handoff/` files.
+- **DeepSeek Harness (DSH)**: treat this as a first-party skill (+ MCP); on DSH release, map the same `.handoff/` contract — no proprietary format.
 - **Auto-trigger**: if user opens a repo with `.handoff/handoffs/LATEST.md` and says anything like "continue" / "接着", run **recall** first.
 
 ## Examples
