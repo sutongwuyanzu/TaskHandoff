@@ -1,5 +1,8 @@
 # Terminal demo (copy-paste)
 
+GIF 预览：[`assets/terminal-demo.gif`](../assets/terminal-demo.gif)  
+怎么录 / 怎么重渲：[how-to-record-gif.md](how-to-record-gif.md)
+
 Assumes: `pip install -e .` from the TaskHandoff repo.
 
 ```bash

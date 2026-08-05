@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3
+
+- README terminal demo GIF: `assets/terminal-demo.gif`
+- Regenerator: `python scripts/render_terminal_gif.py` (Pillow)
+- How-to: `examples/how-to-record-gif.md` (script / ScreenToGif / VHS)
+- Optional VHS tape: `examples/demo.tape`
+
 ## 0.2.2
 
 - Session lifecycle **hook samples** under `examples/hooks/`

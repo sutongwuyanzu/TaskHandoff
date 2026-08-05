@@ -230,7 +230,7 @@ CI：GitHub Actions 在 `main` 上跑 Python 3.9 / 3.12。
 - [x] 纯 stdlib MCP server（同一 `.handoff/` 契约）
 - [x] GitHub Actions CI + skill 安装脚本 + 仓库 dogfood
 - [x] 会话 hook 样例（Claude Code / generic / DSH 映射）
-- [ ] README 终端 GIF（可选）
+- [x] README 终端 GIF（`assets/terminal-demo.gif` + 可重渲脚本）
 
 ## License
 
