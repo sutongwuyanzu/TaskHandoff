@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.4
+
+- Strengthen continuity suite (`tests/test_continuity.py`):
+  - real `session_end.py` → `session_start.py` hook loop
+  - `save --auto` goal/next inheritance + git change signals
+  - resume-and-complete toy `/health` without LLM
+  - stricter assertions: order, count=3, json≡md, budget, decision/blocked
+- README “Continuity evidence” near top; docs refresh
+
 ## 0.2.3
 
 - README terminal demo GIF: `assets/terminal-demo.gif`

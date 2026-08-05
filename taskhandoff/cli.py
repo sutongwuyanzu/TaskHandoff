@@ -512,6 +512,43 @@ def trim_to_budget(text: str, budget: int) -> str:
     return "\n".join(out)
 
 
+def trim_brief_to_budget(text: str, budget: int) -> str:
+    """Prefer keeping goal + next #1 under tight token budgets.
+
+    Drops optional lines first (path, prefs, doing, dirty detail), never the
+    title/goal/next header/first action if budget allows at least those.
+    """
+    if approx_tokens(text) <= budget:
+        return text
+    lines = text.splitlines()
+    optional_prefixes = (
+        "- path:",
+        "- memory_prefs:",
+        "- doing:",
+        "- dirty:",
+        "- branch:",
+        "- recalled_at:",
+    )
+    kept = [ln for ln in lines if not any(ln.startswith(p) for p in optional_prefixes)]
+    if approx_tokens("\n".join(kept)) <= budget:
+        return "\n".join(kept) + ("\n" if text.endswith("\n") else "")
+    # last resort: essential skeleton only
+    essential: List[str] = []
+    for ln in kept:
+        if ln.startswith("# ") or ln.startswith("- project:") or ln.startswith("- goal:"):
+            essential.append(ln)
+        elif ln.strip() == "- next:":
+            essential.append(ln)
+        elif re.match(r"^\s*1\.\s+", ln):
+            essential.append(ln)
+        elif ln.startswith("- instruction:"):
+            essential.append(ln)
+    skeleton = "\n".join(essential)
+    if approx_tokens(skeleton) <= budget:
+        return skeleton + "\n"
+    return trim_to_budget(skeleton, budget)
+
+
 def extract_section(md: str, heading: str) -> str:
     pat = rf"## {re.escape(heading)}\s*\n+(.+?)(?:\n## |\Z)"
     m = re.search(pat, md, re.S)
@@ -521,36 +558,33 @@ def extract_section(md: str, heading: str) -> str:
 
 
 def build_brief(root: Path, hd: Path) -> str:
-    """Fixed short restatement for the next agent session (≤ ~15 lines)."""
-    lines: List[str] = [
-        "# Resume brief (TaskHandoff)",
-        f"- project: `{root.name}`",
-        f"- path: `{root}`",
-        f"- recalled_at: {iso_now()}",
-    ]
+    """Fixed short restatement for the next agent session (≤ ~15 lines).
+
+    Order is intentional for budget trimming: goal and next come before optional noise.
+    """
     latest = hd / "handoffs" / "LATEST.md"
     mem = hd / "MEMORY.md"
     lj = hd / "handoffs" / "LATEST.json"
 
     goal = ""
     nexts: List[str] = []
+    branch = ""
+    dirty = ""
     if lj.exists():
         try:
             data = json.loads(lj.read_text(encoding="utf-8"))
             goal = (data.get("goal") or "").strip()
             nexts = [str(x) for x in (data.get("next_actions") or [])]
-            lines.append(f"- branch: {data.get('branch', 'n/a')} @ {data.get('head', 'n/a')}")
-            lines.append(f"- dirty: {data.get('dirty_summary', 'n/a')}")
+            branch = f"{data.get('branch', 'n/a')} @ {data.get('head', 'n/a')}"
+            dirty = str(data.get("dirty_summary", "n/a"))
         except json.JSONDecodeError:
             pass
 
-    status_bits = []
+    status_bits: List[str] = []
     if latest.exists():
         text = latest.read_text(encoding="utf-8")
         if not goal:
             goal = " ".join(extract_section(text, "Goal").split())
-        doing = extract_section(text, "Status")
-        # pull Doing subsection if present
         dm = re.search(r"### Doing\s*\n+(.+?)(?:\n### |\Z)", extract_section(text, "Status") + "\n", re.S)
         if dm:
             doing_txt = " ".join(dm.group(1).split()).strip().lstrip("- ").strip()
@@ -563,23 +597,43 @@ def build_brief(root: Path, hd: Path) -> str:
                 if re.match(r"^\d+\.", ln):
                     nexts.append(re.sub(r"^\d+\.\s*", "", ln))
 
-    lines.append(f"- goal: {goal or '(unknown)'}")
-    if status_bits:
-        lines.extend(f"- {s}" for s in status_bits)
+    # Core first (must survive tight budgets)
+    lines: List[str] = [
+        "# Resume brief (TaskHandoff)",
+        f"- project: `{root.name}`",
+        f"- goal: {goal or '(unknown)'}",
+        "- next:",
+    ]
+    for i, a in enumerate((nexts + ["(none)", "(none)", "(none)"])[:3], 1):
+        lines.append(f"  {i}. {a}")
+    lines.append(
+        "- instruction: Execute next action #1 now. Re-read `.handoff/handoffs/LATEST.md` if details are missing."
+    )
 
-    # durable prefs snippet
+    # Optional metadata after essentials
+    lines.append(f"- recalled_at: {iso_now()}")
+    path_s = str(root)
+    if len(path_s) <= 100:
+        lines.append(f"- path: `{path_s}`")
+    else:
+        lines.append(f"- path: `…/{root.name}`")
+    if branch:
+        lines.append(f"- branch: {branch}")
+    if dirty and dirty != "clean":
+        # keep dirty short
+        lines.append(f"- dirty: {dirty[:100]}")
+    for s in status_bits:
+        lines.append(f"- {s}")
+
     if mem.exists():
         mtxt = mem.read_text(encoding="utf-8")
         prefs = re.search(r"## Preferences\s*\n+(.+?)(?:\n## |\Z)", mtxt, re.S)
         if prefs:
-            pref_line = " ".join(prefs.group(1).split())[:160]
-            if pref_line and pref_line != "- Package manager: - Style / conventions: - Deploy / runtime:":
+            pref_line = " ".join(prefs.group(1).split())[:120]
+            empty_tmpl = "- Package manager: - Style / conventions: - Deploy / runtime:"
+            if pref_line and pref_line != empty_tmpl and len(pref_line) > 40:
                 lines.append(f"- memory_prefs: {pref_line}")
 
-    lines.append("- next:")
-    for i, a in enumerate((nexts + ["(none)", "(none)", "(none)"])[:3], 1):
-        lines.append(f"  {i}. {a}")
-    lines.append("- instruction: Execute next action #1 now. Re-read `.handoff/handoffs/LATEST.md` if details are missing.")
     lines.append("")
     return "\n".join(lines)
 
@@ -596,8 +650,7 @@ def cmd_recall(args: argparse.Namespace) -> int:
 
     brief = build_brief(root, hd)
     if brief_only:
-        pack = brief
-        pack = trim_to_budget(pack, budget)
+        pack = trim_brief_to_budget(brief, budget)
     else:
         parts: List[str] = [brief, "", "---", ""]
         parts.append(f"# full recall pack @ {iso_now()}")

@@ -23,6 +23,17 @@
 > `init` → `save --auto` → `recall --brief` → `doctor`  
 > 怎么录 / 怎么重渲：[examples/how-to-record-gif.md](examples/how-to-record-gif.md)
 
+### Continuity evidence（跨会话可恢复）
+
+```bash
+pytest tests/test_continuity.py -q
+# or: python scripts/continuity_proof.py
+```
+
+This suite proves **disk-level continuity across independent processes** (including real `session_end.py` → `session_start.py` hooks, `save --auto` inheritance, and a no-LLM “complete next #1” toy).  
+**LLM execution quality still requires harness-level evaluation.**  
+Details: [examples/continuity-proof.md](examples/continuity-proof.md)
+
 ---
 
 ## 30 秒心智模型

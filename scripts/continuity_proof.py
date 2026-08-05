@@ -92,6 +92,8 @@ def main() -> int:
             return 1
         print("PASS — Session B recovered goal + all 3 next actions from disk alone.")
         print("Claim: chat history was not required for the recovery contract.")
+        print("Scope: disk-level continuity (not LLM execution quality).")
+        print("Full suite: pytest tests/test_continuity.py -q")
         print(f"Artifacts: {app / '.handoff'}")
         return 0
     finally:
