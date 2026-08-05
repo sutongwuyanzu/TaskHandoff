@@ -11,7 +11,11 @@
 
 ```bash
 pip install -e ".[dev]"
+
+# Full CI evidence (hooks, --auto, brief→complete next#1, strict asserts)
 pytest tests/test_continuity.py -q
+
+# ~15s human smoke only (explicit save → recall). Not a substitute for the suite.
 python scripts/continuity_proof.py
 ```
 

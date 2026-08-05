@@ -96,6 +96,13 @@ def parse_next_actions_from_brief(brief: str) -> List[str]:
     return actions
 
 
+def parse_goal_from_brief(brief: str) -> str:
+    for line in brief.splitlines():
+        if line.startswith("- goal:"):
+            return line.split(":", 1)[1].strip()
+    return ""
+
+
 def parse_goal_from_md(md: str) -> str:
     m = re.search(r"## Goal\s*\n+(.+?)(?:\n## |\Z)", md, re.S)
     return " ".join(m.group(1).split()) if m else ""
@@ -352,10 +359,10 @@ def test_save_auto_inherits_goal_and_git_changes(tmp_path: Path) -> None:
 
 
 def test_resume_and_complete_health_endpoint(tmp_path: Path) -> None:
-    """Session B uses only recovered handoff facts to finish next #1 + pass a test.
+    """Session B → recall --brief → parse brief only → complete next #1 (no LLM, no LATEST.json).
 
-    The executor is deterministic code that reads LATEST.json (what an agent
-    would read) — not the Session A Python variables.
+    Proves recovered *brief text* is enough to drive a deterministic executor.
+    Does not open LATEST.json / LATEST.md after Session A ends.
     """
     app = tmp_path / "healthapp"
     app.mkdir()
@@ -401,25 +408,26 @@ def handle(path: str) -> dict:
         == 0
     )
 
-    # --- Session B: cold start from disk only ---
+    # --- Session B: cold start; only recall --brief stdout is the context bus ---
     r = run(["recall", "--root", str(app), "--brief"], root=app)
     assert r.returncode == 0
     brief = r.stdout
-    assert goal in brief
+
+    recovered_goal = parse_goal_from_brief(brief)
     actions = parse_next_actions_from_brief(brief)
+    assert recovered_goal == goal
     assert len(actions) == 3
-    assert actions[0] == next1
+    recovered_next = actions[0]
+    assert recovered_next == next1
 
-    pack = json.loads((app / ".handoff" / "handoffs" / "LATEST.json").read_text(encoding="utf-8"))
-    recovered_goal = pack["goal"]
-    recovered_next = pack["next_actions"][0]
-    # Executor policy: only act on recovered text (no Session A closures)
+    # Executor policy: act ONLY on parsed brief fields (no disk sidecars, no Session A vars)
     assert "health" in recovered_goal.lower() or "health" in recovered_next.lower()
+    assert "handle" in recovered_next.lower() or "/health" in recovered_next
 
-    # Complete next #1 using recovered instruction
+    # Complete next #1 using recovered instruction text only
     (app / "main.py").write_text(
         '''\
-"""Minimal app — completed in Session B from handoff next #1."""
+"""Minimal app — completed in Session B from recall --brief next #1."""
 
 def handle(path: str) -> dict:
     if path.rstrip("/") == "/health":
@@ -428,17 +436,7 @@ def handle(path: str) -> dict:
 ''',
         encoding="utf-8",
     )
-    (app / "test_health.py").write_text(
-        '''\
-from main import handle
 
-def test_health():
-    assert handle("/health") == {"status": "ok"}
-''',
-        encoding="utf-8",
-    )
-
-    # Run the project's smoke test
     tr = subprocess.run(
         [sys.executable, "-c", "from main import handle; assert handle('/health')=={'status':'ok'}"],
         cwd=str(app),
@@ -447,12 +445,11 @@ def test_health():
     )
     assert tr.returncode == 0, tr.stderr
 
-    # File actually changed vs Session A TODO scaffold
     body = (app / "main.py").read_text(encoding="utf-8")
     assert "NotImplementedError" not in body
     assert '"ok"' in body or "'ok'" in body
 
-    # Optional: record completion handoff for chain continuity
+    # Chain: save progress using only brief-derived goal/next (still no reading LATEST.json in test)
     assert (
         run(
             [
@@ -465,9 +462,9 @@ def test_health():
                 "--done",
                 f"Completed: {recovered_next}",
                 "--next",
-                "Add smoke test for /health",
+                actions[1] if len(actions) > 1 else "follow-up",
                 "--next",
-                "Polish error paths",
+                actions[2] if len(actions) > 2 else "follow-up",
                 "--next",
                 "Ship",
             ],

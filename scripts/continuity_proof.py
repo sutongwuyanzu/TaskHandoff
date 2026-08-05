@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
-"""Print a human-readable continuity proof (Session A → wipe memory → Session B).
+"""~15s human-readable smoke: Session A explicit save → Session B recall.
 
-Run:
+NOT the full continuity suite. For CI-grade evidence run:
+  pytest tests/test_continuity.py -q
+
+That suite also covers session_end/start hooks, save --auto, and the
+no-LLM brief→complete next#1 toy.
+
+Run this smoke:
   python scripts/continuity_proof.py
 
 Exit 0 only if Session B brief recovers goal + next actions without any

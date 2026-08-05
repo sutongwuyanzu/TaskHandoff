@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "taskhandoff"
-version = "0.2.5"
+version = "0.2.6"
 description = "DeepSeek-friendly long-task project memory & cross-session handoff for coding agents"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -45,7 +45,7 @@ handoff-mcp = "taskhandoff.mcp_server:main"
 include = ["taskhandoff*"]
 
 [tool.setuptools.package-data]
-taskhandoff = ["py.typed"]
+taskhandoff = ["py.typed", "templates/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

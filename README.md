@@ -26,12 +26,20 @@
 
 ### Continuity evidence（跨会话可恢复）
 
+| 命令 | 角色 |
+|------|------|
+| `pytest tests/test_continuity.py -q` | **完整 CI 证据**（hooks 闭环、`save --auto`、brief→完成 next#1 toy、强断言） |
+| `python scripts/continuity_proof.py` | **约 15 秒 smoke demo**（显式 save → recall only；不覆盖 hooks/--auto/toy） |
+
 ```bash
+# Full evidence (what CI runs via pytest -q):
 pytest tests/test_continuity.py -q
-# or: python scripts/continuity_proof.py
+
+# Quick human-readable smoke (not a substitute for the suite):
+python scripts/continuity_proof.py
 ```
 
-This suite proves **disk-level continuity across independent processes** (including real `session_end.py` → `session_start.py` hooks, `save --auto` inheritance, and a no-LLM “complete next #1” toy).  
+The suite proves **disk-level continuity across independent processes**.  
 **LLM execution quality still requires harness-level evaluation.**  
 Details: [examples/continuity-proof.md](examples/continuity-proof.md)
 

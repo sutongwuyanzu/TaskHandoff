@@ -26,22 +26,18 @@ from taskhandoff import __version__
 
 __all__ = ["main", "build_parser"]
 
-# Repo root when installed editable / run from source tree
+# Package dir (wheel installs templates under taskhandoff/templates/)
 _PKG_DIR = Path(__file__).resolve().parent
-_CANDIDATE_ROOTS = [
-    _PKG_DIR.parent,  # repo root (dev / editable)
-    _PKG_DIR,  # package-local data (wheel with package-data)
-]
+# Repo root when developing editable from source checkout
+_REPO_ROOT = _PKG_DIR.parent
 
 
 def find_skill_root() -> Path:
-    for root in _CANDIDATE_ROOTS:
+    """Directory that contains templates/ (package first, then repo root)."""
+    for root in (_PKG_DIR, _REPO_ROOT):
         if (root / "templates" / "handoff.md").exists():
             return root
-        if (root / "templates" / "handoff.md").exists():
-            return root
-    # fallback: repo-style
-    return _PKG_DIR.parent
+    return _PKG_DIR
 
 
 def skill_root() -> Path:

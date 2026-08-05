@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.6
+
+- Wheel fix: ship `taskhandoff/templates/*` so `handoff init` works after `pip install` from wheel
+- Toy continuity test executes from **parsed `recall --brief` only** (no LATEST.json sidestep)
+- README: distinguish 15s `continuity_proof.py` smoke vs full `pytest tests/test_continuity.py`
+
 ## 0.2.5
 
 - Soften README/SKILL claims: recover structured state (proven) vs LLM always finishes (not claimed)
