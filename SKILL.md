@@ -93,9 +93,9 @@ handoff recall --root <project-root> --budget 2500
 
 Then:
 
-1. Follow the **Resume brief** (goal + next 1..3)
-2. Execute **next action #1** immediately when clear
-3. Ask only if a critical fact is missing
+1. Follow the **Resume brief** (goal + next 1..3) — this is recovered task state
+2. Prefer executing **next action #1** when it is concrete and unblocked; if unclear, restate status and ask one focused question
+3. Do not invent progress: only mark done what you actually completed, then `save` again
 
 ### 4) Status / doctor
 
@@ -157,7 +157,7 @@ Do **not** dump transient todos into MEMORY.md (those go in `todos.json` / hando
 **You:** save handoff → print path → show next 3 actions
 
 **User:** 接着昨天的做  
-**You:** recall → restate status → execute next action #1
+**You:** recall → restate goal + next 1..3 → execute next #1 if clear (else ask)
 
 **User:** 这个项目以后都用 pnpm，记住  
 **You:** append preference to MEMORY.md + confirm

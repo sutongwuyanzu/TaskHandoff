@@ -3,7 +3,8 @@
 **DeepSeek-friendly long-task project memory & cross-session handoff** for coding agents.
 
 > 长任务做到一半换会话 / 上下文被压掉 / 换模型 —— Agent 忘了目标、决策和下一步。  
-> TaskHandoff 把可恢复状态写进仓库 `.handoff/`，任何能读文件的 Harness 都能接着干。
+> TaskHandoff 把状态写进仓库 `.handoff/`：任何能读项目文件的 Harness 都能**恢复任务状态**，并拿到结构化的下一步上下文。  
+> 「能恢复」有自动化测试证据；「LLM 一定把活干完」仍需 harness 级评测。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
@@ -40,7 +41,8 @@ Details: [examples/continuity-proof.md](examples/continuity-proof.md)
 
 ```text
 会话 A 干到一半  →  handoff save [--auto]  →  写入 .handoff/
-新开会话 / 换模型 →  handoff recall --brief →  执行 Next #1
+新开会话 / 换模型 →  handoff recall --brief →  恢复 goal + next 1..3
+                         （Agent 可据此继续；执行成败取决于模型/harness）
 ```
 
 | 文件 | 作用 |
@@ -86,11 +88,12 @@ python scripts/handoff_cli.py init --root /path/to/project
 ### 装成 Agent Skill
 
 ```bash
-# 一键脚本（推荐）
+# 一键脚本（推荐）— 在仓库根目录执行
 # Windows PowerShell:
-.\scripts\install-skill.ps1
+powershell -ExecutionPolicy Bypass -File scripts/install-skill.ps1
+
 # macOS / Linux:
-./scripts/install-skill.sh
+bash scripts/install-skill.sh
 
 # 或手动
 cp -r TaskHandoff ~/.claude/skills/task-handoff

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.5
+
+- Soften README/SKILL claims: recover structured state (proven) vs LLM always finishes (not claimed)
+- Fix skill-install commands to copy-paste cleanly on Windows/macOS
+
 ## 0.2.4
 
 - Strengthen continuity suite (`tests/test_continuity.py`):
