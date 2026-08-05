@@ -18,6 +18,11 @@
 | **MCP** | `handoff-mcp`（纯 stdlib，无额外依赖）见 [references/mcp.md](references/mcp.md) |
 | **DSH** | Skill + CLI + MCP 同一 `.handoff/` 契约（见 [references/deepseek-notes.md](references/deepseek-notes.md)） |
 
+![TaskHandoff terminal demo](assets/terminal-demo.gif)
+
+> `init` → `save --auto` → `recall --brief` → `doctor`  
+> 怎么录 / 怎么重渲：[examples/how-to-record-gif.md](examples/how-to-record-gif.md)
+
 ---
 
 ## 30 秒心智模型
