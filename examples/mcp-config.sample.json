@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "task-handoff": {
+      "command": "python",
+      "args": ["-m", "taskhandoff.mcp_server"],
+      "cwd": "C:/path/to/TaskHandoff"
+    }
+  }
+}

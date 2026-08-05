@@ -730,7 +730,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="handoff",
         description="TaskHandoff — DeepSeek-friendly long-task handoff & project memory",
     )
-    p.add_argument("--version", action="version", version="%(prog)s 0.1.0")
+    p.add_argument("--version", action="version", version="%(prog)s 0.2.0")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     p_init = sub.add_parser("init", help="Initialize .handoff/ in a project")

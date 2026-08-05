@@ -14,7 +14,7 @@
 | **Repo** | https://github.com/sutongwuyanzu/TaskHandoff |
 | **Skill name** | `task-handoff` |
 | **CLI** | `handoff`（`pip install -e .` 后） |
-| **MCP** | `handoff-mcp`（`pip install -e ".[mcp]"`）见 [references/mcp.md](references/mcp.md) |
+| **MCP** | `handoff-mcp`（纯 stdlib，无额外依赖）见 [references/mcp.md](references/mcp.md) |
 | **DSH** | Skill + CLI + MCP 同一 `.handoff/` 契约（见 [references/deepseek-notes.md](references/deepseek-notes.md)） |
 
 ---
@@ -49,16 +49,16 @@ handoff --version
 python -m taskhandoff --version
 ```
 
-### MCP（可选）
+### MCP（stdio，零额外依赖）
 
 ```bash
-pip install -e ".[mcp]"
+pip install -e .
 handoff-mcp
 # 或
 python -m taskhandoff.mcp_server
 ```
 
-把 stdio server 配进 Claude Desktop / Cursor 等客户端即可（完整说明：[references/mcp.md](references/mcp.md)）。
+把 stdio server 配进 Claude Desktop / Cursor 等（示例：[examples/mcp-config.sample.json](examples/mcp-config.sample.json)，说明：[references/mcp.md](references/mcp.md)）。
 
 不装包也可以用 CLI：
 
@@ -210,7 +210,7 @@ pytest -q
 - [x] `recall --brief` 固定复述
 - [x] 密钥拒绝写入 + `doctor`
 - [x] pytest 契约测试
-- [x] 可选 MCP server（同一 `.handoff/` 契约）
+- [x] 纯 stdlib MCP server（同一 `.handoff/` 契约）
 - [ ] 会话结束 hook 样例（多 harness）
 
 ## License

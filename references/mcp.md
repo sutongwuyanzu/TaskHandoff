@@ -1,22 +1,20 @@
 # TaskHandoff MCP server
 
-Thin MCP adapter over the same `.handoff/` contract and CLI logic.
+**Zero extra dependencies.** Pure stdlib stdio MCP (newline-delimited JSON-RPC), wrapping the same `.handoff/` contract as the CLI.
 
-## Install
+## Install / run
 
 ```bash
 git clone https://github.com/sutongwuyanzu/TaskHandoff.git
 cd TaskHandoff
-pip install -e ".[mcp]"
-```
+pip install -e .          # no [mcp] extra required
 
-## Run (stdio)
-
-```bash
 handoff-mcp
 # or
 python -m taskhandoff.mcp_server
 ```
+
+Stdout = MCP wire. Logs go to **stderr**.
 
 ## Tools
 
@@ -29,9 +27,9 @@ python -m taskhandoff.mcp_server
 | `handoff_memory_append` | `handoff memory --append` | empty text = show MEMORY |
 | `handoff_doctor` | `handoff doctor` | secret scan |
 
-## Client config examples
+## Client config
 
-### Claude Desktop / generic stdio
+Sample: [examples/mcp-config.sample.json](../examples/mcp-config.sample.json)
 
 ```json
 {
@@ -45,7 +43,7 @@ python -m taskhandoff.mcp_server
 }
 ```
 
-If the package is on `PATH` after install:
+After `pip install -e .` and `handoff-mcp` on PATH:
 
 ```json
 {
@@ -57,18 +55,17 @@ If the package is on `PATH` after install:
 }
 ```
 
-### Cursor
-
-Add the same stdio server in Cursor MCP settings (`command` + `args` as above).
+Works with Claude Desktop, Cursor, and other MCP clients that launch a local stdio server.
 
 ## Agent usage pattern
 
-1. Session start → `handoff_recall(root, brief=true)`
+1. Session start → `handoff_recall` (`brief=true`)
 2. Work…
-3. Session end / checkpoint → `handoff_save(root, auto=true, goal=..., next_actions=[...])`
-4. Optional durable fact → `handoff_memory_append(root, text="...")`
+3. Checkpoint / end → `handoff_save` (`auto=true`, set `goal` + `next_actions`)
+4. Durable fact → `handoff_memory_append`
 
 ## Design
 
-- No second storage format — MCP and CLI share `taskhandoff.cli` command functions.
-- Core package stays dependency-free; MCP is an **optional extra** (`pip install -e ".[mcp]"`).
+- One storage format for Skill / CLI / MCP
+- No second framework dependency for MCP
+- Unit-tested JSON-RPC handlers (`tests/test_mcp_stdio.py`)

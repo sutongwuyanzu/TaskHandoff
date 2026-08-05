@@ -18,7 +18,7 @@ GitHub ID: sutongwuyanzu
 
 能力:
 - handoff init/save/recall/status/doctor/memory（pip install -e .）
-- MCP stdio：handoff-mcp / python -m taskhandoff.mcp_server（pip install -e ".[mcp]"）
+- MCP stdio（纯 stdlib 零额外依赖）：handoff-mcp / python -m taskhandoff.mcp_server
 - save --auto：git 变更 + 上次 handoff 自动补全
 - recall --brief：固定短复述，token 友好
 - 默认拒绝密钥写入；pytest 契约测试
