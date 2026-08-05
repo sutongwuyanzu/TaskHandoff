@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1
+
+- GitHub Actions CI (Python 3.9 / 3.12)
+- `handoff info` — version + install paths
+- Skill install scripts: `scripts/install-skill.ps1` / `install-skill.sh`
+- Terminal demo: `examples/terminal-demo.md`
+- Dogfood: commit `.handoff/` for this repo
+- `init` writes `.handoff/.gitignore` for local dumps / key files
+
 ## 0.2.0
 
 - Pure-stdlib **MCP stdio server** (`handoff-mcp` / `python -m taskhandoff.mcp_server`)

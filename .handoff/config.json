@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "project_id": "task-handoff",
+  "language": "zh-CN",
+  "token_budget_recall": 2500,
+  "created_at": "2026-08-05T03:40:31Z",
+  "notes": "task-handoff config — safe to commit"
+}

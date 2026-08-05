@@ -7,6 +7,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![CI](https://github.com/sutongwuyanzu/TaskHandoff/actions/workflows/ci.yml/badge.svg)](https://github.com/sutongwuyanzu/TaskHandoff/actions/workflows/ci.yml)
 [![GitHub](https://img.shields.io/badge/github-sutongwuyanzu%2FTaskHandoff-black)](https://github.com/sutongwuyanzu/TaskHandoff)
 
 | | |
@@ -69,12 +70,18 @@ python scripts/handoff_cli.py init --root /path/to/project
 ### 装成 Agent Skill
 
 ```bash
-# Claude Code 示例
+# 一键脚本（推荐）
+# Windows PowerShell:
+.\scripts\install-skill.ps1
+# macOS / Linux:
+./scripts/install-skill.sh
+
+# 或手动
 cp -r TaskHandoff ~/.claude/skills/task-handoff
-# 之后对 Agent 说：交接 / 接着做 / handoff
 ```
 
-`SKILL.md` 是给 Agent 的剧本；CLI 是可脚本化执行层。
+装好后对 Agent 说：交接 / 接着做 / handoff。  
+`SKILL.md` 是剧本；`handoff` CLI / MCP 是执行层。
 
 ---
 
@@ -178,7 +185,7 @@ your-app/.handoff/
 
 ## DeepSeek Harness (DSH)
 
-- 类型：**Skill + CLI**（预留 MCP 同契约）
+- 类型：**Skill + CLI + MCP**（同一 `.handoff/` 契约）
 - 无私有二进制格式：纯 Markdown + JSON
 - Token 预算：`recall --budget` / `--brief`
 - 发布日接入计划：[references/deepseek-notes.md](references/deepseek-notes.md)
@@ -187,12 +194,21 @@ your-app/.handoff/
 
 ---
 
+## 更多示例
+
+- 终端抄作业：[examples/terminal-demo.md](examples/terminal-demo.md)
+- 真实风格交接包：[examples/filled-LATEST.md](examples/filled-LATEST.md)
+- 本仓库自用 dogfood：`.handoff/`（`handoff recall --root . --brief`）
+
 ## 开发与测试
 
 ```bash
 pip install -e ".[dev]"
 pytest -q
+handoff info --root .
 ```
+
+CI：GitHub Actions 在 `main` 上跑 Python 3.9 / 3.12。
 
 ---
 
@@ -211,7 +227,9 @@ pytest -q
 - [x] 密钥拒绝写入 + `doctor`
 - [x] pytest 契约测试
 - [x] 纯 stdlib MCP server（同一 `.handoff/` 契约）
+- [x] GitHub Actions CI + skill 安装脚本 + 仓库 dogfood
 - [ ] 会话结束 hook 样例（多 harness）
+- [ ] README 终端 GIF（可选）
 
 ## License
 

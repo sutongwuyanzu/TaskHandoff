@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
+from taskhandoff import __version__
+
 __all__ = ["main", "build_parser"]
 
 # Repo root when installed editable / run from source tree
@@ -201,6 +203,18 @@ def cmd_init(args: argparse.Namespace) -> int:
         )
 
     # Suggest tracking .handoff in git
+    # Lightweight ignore for accidental secret dumps (still track the rest of .handoff/)
+    local_gi = hd / ".gitignore"
+    if not local_gi.exists():
+        local_gi.write_text(
+            "# optional local dumps — keep MEMORY/handoffs tracked\n"
+            "sessions/*\n"
+            "!.gitkeep\n"
+            "*.secret\n"
+            "*.key\n",
+            encoding="utf-8",
+        )
+
     print(f"Initialized TaskHandoff at: {hd}")
     print("Next: work on your task, then run `handoff save --auto --goal \"...\"` before ending the session.")
     return 0
@@ -725,12 +739,25 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     return 0 if ok else 2
 
 
+def cmd_info(args: argparse.Namespace) -> int:
+    """Print install paths / version (debug helper)."""
+    print(f"taskhandoff {__version__}")
+    print(f"skill_root: {skill_root()}")
+    print(f"templates:  {templates_dir()}")
+    print(f"cli_file:   {Path(__file__).resolve()}")
+    root = Path(args.root).resolve()
+    hd = handoff_root(root)
+    print(f"project:    {root}")
+    print(f".handoff:   {hd} ({'exists' if hd.is_dir() else 'missing'})")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="handoff",
         description="TaskHandoff — DeepSeek-friendly long-task handoff & project memory",
     )
-    p.add_argument("--version", action="version", version="%(prog)s 0.2.0")
+    p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     p_init = sub.add_parser("init", help="Initialize .handoff/ in a project")
@@ -792,6 +819,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_doc = sub.add_parser("doctor", help="Check .handoff/ health and secret scan")
     p_doc.add_argument("--root", default=".")
     p_doc.set_defaults(func=cmd_doctor)
+
+    p_info = sub.add_parser("info", help="Show version and install paths")
+    p_info.add_argument("--root", default=".")
+    p_info.set_defaults(func=cmd_info)
 
     return p
 

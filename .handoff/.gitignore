@@ -1,0 +1,5 @@
+# optional local dumps — keep MEMORY/handoffs tracked
+sessions/*
+!.gitkeep
+*.secret
+*.key

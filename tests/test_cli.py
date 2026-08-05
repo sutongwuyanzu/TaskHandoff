@@ -110,6 +110,13 @@ def test_refuse_secrets(project: Path) -> None:
     assert "secrets" in (r.stderr + r.stdout).lower() or "Refusing" in (r.stderr + r.stdout)
 
 
+def test_info(project: Path) -> None:
+    r = run(["info", "--root", str(project)])
+    assert r.returncode == 0, r.stderr
+    assert "taskhandoff" in r.stdout
+    assert "skill_root" in r.stdout
+
+
 def test_auto_save(project: Path) -> None:
     run(["init", "--root", str(project)])
     # first explicit save

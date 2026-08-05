@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "updated_at": "2026-08-05T03:40:31Z",
+  "items": [
+    {
+      "id": "n1",
+      "text": "Optional: terminal GIF for README",
+      "status": "pending"
+    },
+    {
+      "id": "n2",
+      "text": "Optional: session-end hook samples",
+      "status": "pending"
+    },
+    {
+      "id": "n3",
+      "text": "Apply to DSH via APPLY.md when ready",
+      "status": "pending"
+    }
+  ]
+}
