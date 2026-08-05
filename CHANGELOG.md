@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2
+
+- Session lifecycle **hook samples** under `examples/hooks/`
+  - `session_start.py` / `session_end.py` (cross-platform)
+  - Claude Code `settings.fragment.json` (SessionStart / SessionEnd / PreCompact)
+  - Generic Codex wrapper + Cursor / DSH mapping notes
+- Docs: `references/hooks.md`
+- Tests: `tests/test_hooks.py`
+
 ## 0.2.1
 
 - GitHub Actions CI (Python 3.9 / 3.12)

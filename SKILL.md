@@ -149,6 +149,7 @@ Do **not** dump transient todos into MEMORY.md (those go in `todos.json` / hando
 - **MCP**: if the host has TaskHandoff MCP configured, prefer tools `handoff_recall` / `handoff_save` / `handoff_init` over shell. Same `.handoff/` files.
 - **DeepSeek Harness (DSH)**: treat this as a first-party skill (+ MCP); on DSH release, map the same `.handoff/` contract — no proprietary format.
 - **Auto-trigger**: if user opens a repo with `.handoff/handoffs/LATEST.md` and says anything like "continue" / "接着", run **recall** first.
+- **Hooks** (optional): `examples/hooks/session_start.py` / `session_end.py` for SessionStart / SessionEnd / PreCompact — see `references/hooks.md`.
 
 ## Examples
 

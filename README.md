@@ -198,6 +198,7 @@ your-app/.handoff/
 
 - 终端抄作业：[examples/terminal-demo.md](examples/terminal-demo.md)
 - 真实风格交接包：[examples/filled-LATEST.md](examples/filled-LATEST.md)
+- **会话 Hook 样例**：[examples/hooks/](examples/hooks/)（SessionStart → recall，SessionEnd → save）
 - 本仓库自用 dogfood：`.handoff/`（`handoff recall --root . --brief`）
 
 ## 开发与测试
@@ -228,7 +229,7 @@ CI：GitHub Actions 在 `main` 上跑 Python 3.9 / 3.12。
 - [x] pytest 契约测试
 - [x] 纯 stdlib MCP server（同一 `.handoff/` 契约）
 - [x] GitHub Actions CI + skill 安装脚本 + 仓库 dogfood
-- [ ] 会话结束 hook 样例（多 harness）
+- [x] 会话 hook 样例（Claude Code / generic / DSH 映射）
 - [ ] README 终端 GIF（可选）
 
 ## License

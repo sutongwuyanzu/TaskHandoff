@@ -21,7 +21,8 @@ GitHub ID: sutongwuyanzu
 - MCP stdio（纯 stdlib 零额外依赖）：handoff-mcp / python -m taskhandoff.mcp_server
 - save --auto：git 变更 + 上次 handoff 自动补全
 - recall --brief：固定短复述，token 友好
-- 默认拒绝密钥写入；pytest 契约测试
+- 会话 hooks：SessionStart→recall / SessionEnd→save（examples/hooks）
+- 默认拒绝密钥写入；pytest + CI
 - 兼容 Claude Code / Codex 等 SKILL.md；DSH 发布当天可接入
 
 承诺: DSH 发布第一时间做 skill/MCP 适配与兼容验证
